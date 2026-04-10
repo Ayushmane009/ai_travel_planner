@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Travel Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen text-gray-800 font-sans">
+
+    <div class="max-w-3xl mx-auto pt-12 px-4">
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold text-blue-600 mb-2">AI Travel Planner</h1>
+            <p class="text-gray-500">Generate a custom itinerary in seconds.</p>
+        </div>
+
+        <div class="bg-white p-6 rounded-xl shadow-md border border-gray-100 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Destination</label>
+                    <input type="text" id="destination" placeholder="e.g., Tokyo" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Days</label>
+                    <input type="number" id="days" placeholder="3" min="1" max="14" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Style</label>
+                    <select id="style" class="w-full border border-gray-300 rounded-lg p-2.5 outline-none focus:border-blue-500 bg-white">
+                        <option value="balanced">Balanced</option>
+                        <option value="relaxing">Relaxing</option>
+                        <option value="adventurous">Adventurous</option>
+                    </select>
+                </div>
+            </div>
+            <button id="generate-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition duration-200">
+                Generate Itinerary
+            </button>
+        </div>
+
+        <div id="loading" class="hidden text-center py-10">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p class="text-gray-500 animate-pulse">Planning your trip...</p>
+        </div>
+
+        <div id="output-container" class="hidden bg-white p-8 rounded-xl shadow-md border border-gray-100 mb-12">
+            <div id="itinerary-content" class="prose max-w-none text-gray-700"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
