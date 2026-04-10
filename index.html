@@ -3,79 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Travel Dashboard</title>
+    <title>AI Travel Dashboard | Wiki-Integrated</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
-        /* Custom Scrollbar for a clean look */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         
-        /* The "Half-Map" Sticky Logic */
-        #map-container { height: calc(100vh - 100px); position: sticky; top: 20px; }
-        #map { height: 100%; width: 100%; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border: 4px solid white; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
         
-        /* Card Styling for Itinerary */
+        /* Sticky Half-Map Logic */
+        .sticky-map { 
+            position: sticky; 
+            top: 2rem; 
+            height: calc(100vh - 4rem); 
+        }
+
+        #map { height: 100%; width: 100%; border-radius: 2rem; border: 8px solid white; box-shadow: 0 20px 50px rgba(0,0,0,0.1); }
+
+        /* Itinerary Card Styling */
         .itinerary-step { 
             background: white; 
             padding: 1.5rem; 
             border-radius: 1.25rem; 
-            border-left: 8px solid #4f46e5; 
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
+            border-left: 6px solid #4f46e5; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .itinerary-step:hover { transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        
-        #itinerary-content h3 { font-size: 1.5rem; font-weight: 800; color: #1e293b; margin: 2rem 0 1rem 0; }
-        #itinerary-content ul { display: flex; flex-direction: column; gap: 0.75rem; }
+        .itinerary-step:hover { transform: translateX(10px); background: #fdfdff; }
+
+        #itinerary-content h3 { font-size: 1.5rem; font-weight: 800; color: #1e293b; margin: 2.5rem 0 1rem 0; display: flex; align-items: center; gap: 0.5rem; }
+        #itinerary-content ul { display: flex; flex-direction: column; gap: 0.5rem; padding: 0; }
         #itinerary-content li { list-style: none; }
+
+        .wiki-image { width: 100%; height: 400px; object-fit: cover; border-radius: 2rem; box-shadow: 0 20px 40px rgba(0,0,0,0.15); border: 8px solid white; margin-bottom: 2rem; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen text-slate-900 font-sans">
+<body class="bg-slate-50 text-slate-900 overflow-x-hidden">
 
-    <div class="max-w-[1400px] mx-auto px-6 py-10">
+    <div class="max-w-[1500px] mx-auto px-6 py-8">
         
-        <header class="mb-10 animate__animated animate__fadeInDown">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white p-8 rounded-[32px] shadow-xl border border-slate-100">
-                <div class="max-w-xs">
-                    <h1 class="text-3xl font-black text-indigo-600 italic">AI.EXPLORER</h1>
-                    <p class="text-slate-400 text-sm">One click to your next adventure.</p>
+        <header class="mb-8 animate__animated animate__fadeInDown">
+            <div class="bg-white/80 backdrop-blur-md p-6 rounded-[2.5rem] shadow-xl border border-white flex flex-col lg:flex-row items-center gap-6">
+                <div class="flex items-center gap-3 px-4">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl">🌍</div>
+                    <div>
+                        <h1 class="text-xl font-extrabold leading-none">TRAVEL.AI</h1>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Wikipedia Edition</span>
+                    </div>
                 </div>
-                
-                <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <input type="text" id="destination" placeholder="Destination (e.g. Tokyo)" class="bg-slate-50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-semibold">
-                    <input type="number" id="days" placeholder="Days" class="bg-slate-50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-semibold">
-                    <select id="style" class="bg-slate-50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-semibold cursor-pointer">
+
+                <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+                    <input type="text" id="destination" placeholder="Where to?" class="bg-slate-100/50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold transition-all">
+                    <input type="number" id="days" placeholder="How many days?" class="bg-slate-100/50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold transition-all">
+                    <select id="style" class="bg-slate-100/50 p-4 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 font-semibold cursor-pointer transition-all">
                         <option value="Luxury">💎 Luxury</option>
                         <option value="Adventure">🧗 Adventure</option>
-                        <option value="Budget">💰 Budget</option>
+                        <option value="Budget">💰 Budget Friendly</option>
                     </select>
                 </div>
 
-                <button id="generate-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-8 rounded-2xl shadow-lg transition-all active:scale-95 whitespace-nowrap">
-                    Go! 🚀
+                <button id="generate-btn" class="w-full lg:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-10 rounded-2xl shadow-lg shadow-indigo-200 transition-all active:scale-95">
+                    Plan Trip
                 </button>
             </div>
         </header>
 
-        <div id="loading" class="hidden text-center py-20 animate__animated animate__pulse animate__infinite">
-            <div class="w-16 h-16 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p id="loading-text" class="text-indigo-600 font-bold text-xl">Mapping your journey...</p>
+        <div id="loading" class="hidden text-center py-24 animate__animated animate__fadeIn">
+            <div class="w-20 h-20 border-8 border-indigo-100 border-t-indigo-600 rounded-full animate-spin mx-auto mb-6"></div>
+            <h2 id="loading-text" class="text-2xl font-black text-indigo-600 animate__animated animate__pulse animate__infinite">Connecting to Satellites...</h2>
         </div>
 
-        <div id="output-container" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div id="output-container" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             
-            <div class="order-2 lg:order-1">
-                <div id="map-container">
-                    <div id="map" class="animate__animated animate__fadeInLeft"></div>
-                </div>
+            <div class="order-2 lg:order-1 sticky-map">
+                <div id="map" class="animate__animated animate__fadeInLeft"></div>
             </div>
 
-            <div class="order-1 lg:order-2 animate__animated animate__fadeInRight">
-                <div id="visual-header" class="mb-8">
+            <div class="order-1 lg:order-2 space-y-8 animate__animated animate__fadeInRight">
+                <div id="visual-header">
                     </div>
                 
                 <div id="itinerary-content">
